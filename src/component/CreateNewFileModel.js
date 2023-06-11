@@ -21,6 +21,7 @@ function CreateNewFileModel(args) {
     toggleCreateNewFileModel,
     onChangeState,
     explorer,
+    selectedFiles
   } = useContext(EditorContext);
 
   const onClick = async (e) => {
@@ -45,10 +46,17 @@ function CreateNewFileModel(args) {
     });
 
     await onCreateFilePromise.then((response) => {
+      const code = response.data.code;
+      const explorer = response.data.explorer;
+      const _selectedFiles = [...selectedFiles,explorer]
+
       Promise.resolve(
         onChangeState({
-          code: response.data,
+          code: code,
           isCreateNewFileModelOpen: false,
+          explorer:explorer,
+          content:explorer?.content,
+          selectedFiles:_selectedFiles
         })
       );
     });
