@@ -6,7 +6,7 @@ const getAuthTokens = () =>
     : null;
 
 const axiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: "https://testing-amojo.up.railway.app",
   timeout: 10000,
   headers: {
     Authorization: `Bearer ${getAuthTokens()?.access}`,
