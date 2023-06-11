@@ -9,9 +9,7 @@ import { toast } from "react-hot-toast";
 
 const Folder = ({ explorer }) => {
   const [expand, setExpand] = useState(false);
-  const { onChangeState, selectedFiles } = useContext(
-    EditorContext
-  );
+  const { onChangeState, selectedFiles,onDeleteFile } = useContext(EditorContext);
 
   const onClickFile = async () => {
     await axiosInstance
@@ -29,41 +27,6 @@ const Folder = ({ explorer }) => {
         });
       })
       .catch((error) => console.log(" Error ", error));
-  };
-
-  const onDeleteFile = async () => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: `Do you want to delete ${explorer.name} file!`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const onDeleteFilePromise = axiosInstance.delete("/theme/file/", {
-          params: {
-            path: explorer.path,
-          },
-        });
-
-        toast.promise(onDeleteFilePromise, {
-          loading: "Deleting...",
-          success: `${explorer.name} file is deleted successfully`,
-          error: `Couldn't delete file ${explorer.name}`,
-        });
-
-        await onDeleteFilePromise.then((response) => {
-          onChangeState({ code: response.data, explorer: {}, content: null });
-        });
-      } else if (
-        /* Read more about handling dismissals below */
-        result.dismiss === Swal.DismissReason.cancel
-      ) {
-        Swal.fire("Cancelled", "Your imaginary file is safe :)", "error");
-      }
-    });
   };
 
   const onClickCreateFolderButton = () => {
@@ -98,9 +61,15 @@ const Folder = ({ explorer }) => {
         });
 
         await onDeleteFolderPromise
-          .then((response) =>
-            onChangeState({ code: response.data, explorer: {}, content: null })
-          )
+          .then((response) => {
+            const foldersAfterDelete = selectedFiles.filter((file) => !explorer.items.map((file) => file.path).includes(file.path))
+            
+            const tempExplorer = foldersAfterDelete.length ? foldersAfterDelete[0] : null;
+
+            const content = tempExplorer ? tempExplorer?.content : null;
+
+            onChangeState({ code: response.data,  explorer, content,selectedFiles:foldersAfterDelete });
+          })
           .catch((error) => console.log(" Error ", error));
       } else if (
         /* Read more about handling dismissals below */
@@ -152,7 +121,7 @@ const Folder = ({ explorer }) => {
       <div style={{ paddingTop: "3px", cursor: "pointer" }}>
         <div className="d-flex justify-content-between align-items-center">
           <span onClick={onClickFile}>{explorer.name}</span>
-          <BsTrash3 size={16} onClick={onDeleteFile} />
+          <BsTrash3 size={16} onClick={() => onDeleteFile(explorer)} />
         </div>
       </div>
     );

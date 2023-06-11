@@ -34,8 +34,15 @@ const Body = () => {
       .catch((error) => console.log(" Error ", error));
   };
 
-  const onClickingTab = (explorer) => {
-    onChangeState({ explorer, content: explorer?.content });
+  const onClickingTab = async (explorer) => {
+    await axiosInstance.get("/theme/file",{
+      params:{
+        path:explorer?.path
+      }
+    }).then((response) => {
+      onChangeState({ explorer, content: response.data?.content });
+    })
+    .catch((error) => console.log(" Error ",error))
   };
 
   const onDeselectTab = (explorer,key) => {
