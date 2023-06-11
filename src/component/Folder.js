@@ -9,13 +9,24 @@ import { toast } from "react-hot-toast";
 
 const Folder = ({ explorer }) => {
   const [expand, setExpand] = useState(false);
-  const { onChangeState } = useContext(EditorContext);
+  const { onChangeState, selectedFiles } = useContext(
+    EditorContext
+  );
 
   const onClickFile = async () => {
     await axiosInstance
       .get("/theme/file/", { params: { path: explorer.path } })
       .then((response) => {
-        onChangeState({ ...response?.data, explorer });
+        const files =
+          selectedFiles.findIndex((file) => file.path === explorer.path) === -1
+            ? [...selectedFiles, response?.data]
+            : selectedFiles;
+
+        onChangeState({
+          selectedFiles:files,
+          explorer,
+          content: response?.data?.content,
+        });
       })
       .catch((error) => console.log(" Error ", error));
   };
@@ -74,14 +85,11 @@ const Folder = ({ explorer }) => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const onDeleteFolderPromise = axiosInstance.delete(
-          "/theme/folder/",
-          {
-            params: {
-              path: explorer.path,
-            },
-          }
-        );
+        const onDeleteFolderPromise = axiosInstance.delete("/theme/folder/", {
+          params: {
+            path: explorer.path,
+          },
+        });
 
         toast.promise(onDeleteFolderPromise, {
           loading: "Deleting...",
