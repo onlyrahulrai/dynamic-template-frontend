@@ -10,14 +10,13 @@ export class EditorProvider extends React.Component {
     super(props);
 
     this.state = {
-      name: "John Doe",
       code: {},
       content: null,
       isCreateNewFileModelOpen: false,
       isCreateNewFolderModelOpen: false,
-      selectedFile: null,
       explorer: null,
-      loading:false
+      loading:false,
+      selectedFiles:[],
     };
   }
 
