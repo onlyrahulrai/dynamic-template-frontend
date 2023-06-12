@@ -6,9 +6,13 @@ import NoFileSelectedMessage from "./NoFileSelectedMessage";
 import { AiOutlineClose } from "react-icons/ai";
 
 const Body = () => {
-  const { content, onChangeState, explorer, selectedFiles } = useContext(
-    EditorContext
-  );
+  const {
+    content,
+    onChangeState,
+    explorer,
+    selectedFiles,
+    selectedTab,
+  } = useContext(EditorContext);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -35,51 +39,68 @@ const Body = () => {
   };
 
   const onClickingTab = async (explorer) => {
-    await axiosInstance.get("/theme/file",{
-      params:{
-        path:explorer?.path
-      }
-    }).then((response) => {
-      onChangeState({ explorer, content: response.data?.content });
-    })
-    .catch((error) => console.log(" Error ",error))
+    onChangeState({
+      explorer,
+      content: explorer?.content,
+      selectedTab: explorer?.path,
+    });
   };
 
-  const onDeselectTab = (explorer,key) => {
-    const files = selectedFiles.filter((file) => file.path !== explorer.path)
+  const onDeselectTab = (explorer) => {
+    const files = selectedFiles.filter((file) => file.path !== explorer.path);
 
-    const content = files.length ? files[key - 1]?.content : null;
-    onChangeState({selectedFiles:files,content})
-  }
+    const currentExplorer = files.length ? files[files.length - 1] : null;
+
+    const content = currentExplorer ? currentExplorer?.content : null;
+
+    onChangeState({
+      selectedFiles: files,
+      content,
+      selectedTab: currentExplorer?.path,
+      explorer: currentExplorer,
+    });
+  };
 
   return (
     <div className="col-md-9 p-0" style={{ minHeight: "100vh" }}>
       <div className="card h-100">
         <div className="card-body">
-          <div className="d-flex align-items-center">
-            <span className="mr-5">Body Container</span>{" "}
-            {content !== null ? (
-              <ul className="nav nav-tabs" style={{ marginLeft: "25px" }}>
-                {selectedFiles.map((file, key) => (
-                  <li className="nav-item mx-1" key={key}>
-                    <div className="nav-link active  d-flex align-items-center gap-2" aria-current="page">
+          <div className="d-flex">
+            <div style={{ width: "12%", padding: "14px" }}>
+              <span className="mr-5">Body Container</span>{" "}
+            </div>
+            <div style={{ width: "88%" }}>
+              {content !== null ? (
+                <div className="scrollmenu">
+                  {selectedFiles.map((file, key) => (
+                    <div
+                      className={`nav-link border border-bottom-0 mx-2 tab-button rounded d-flex align-items-center ${
+                        selectedTab === file.path ? "tab-active" : null
+                      }`}
+                      aria-current="page"
+                      key={key}
+                    >
                       <span
                         onClick={() => onClickingTab(file)}
+                        className="mx-1"
                         style={{ cursor: "pointer" }}
                       >
                         {!file?.is_folder ? file?.name : null}
                       </span>
 
-                      <AiOutlineClose size={16} style={{cursor:"pointer"}} onClick={() => onDeselectTab(file,key)} />
+                      <AiOutlineClose
+                        size={16}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => onDeselectTab(file)}
+                      />
                     </div>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
-
           {content !== null ? (
-            <form className="mt-2" onSubmit={onSubmit}>
+            <form onSubmit={onSubmit}>
               <textarea
                 value={content || ""}
                 onChange={(e) => onChangeState({ content: e.target.value })}
