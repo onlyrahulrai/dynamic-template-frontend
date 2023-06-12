@@ -107,6 +107,9 @@ const Body = () => {
                 style={{ width: "100%" }}
                 rows={27}
               />
+              <small className="text-sm text-info">
+                You can also save files by pressing CTRL+S Button.
+              </small>
 
               <div className="d-flex justify-content-end">
                 <button type="submit" className="btn btn-success mt-4">
