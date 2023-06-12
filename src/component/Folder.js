@@ -15,15 +15,17 @@ const Folder = ({ explorer }) => {
     await axiosInstance
       .get("/theme/file/", { params: { path: explorer.path } })
       .then((response) => {
-        const files =
-          selectedFiles.findIndex((file) => file.path === explorer.path) === -1
-            ? [...selectedFiles, response?.data]
-            : selectedFiles;
+        const fileIndex = selectedFiles.findIndex((file) => file.path === explorer.path);
+
+        const values =
+          (fileIndex === -1)
+            ? {selectedFiles:[...selectedFiles, response?.data],content:response?.data?.content}
+            : {selectedFiles,content:selectedFiles[fileIndex]?.content};
 
         onChangeState({
-          selectedFiles:files,
           explorer,
-          content: response?.data?.content,
+          selectedTab:response?.data?.path,
+          ...values
         });
       })
       .catch((error) => console.log(" Error ", error));

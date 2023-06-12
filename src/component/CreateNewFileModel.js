@@ -56,7 +56,8 @@ function CreateNewFileModel(args) {
           isCreateNewFileModelOpen: false,
           explorer:explorer,
           content:explorer?.content,
-          selectedFiles:_selectedFiles
+          selectedFiles:_selectedFiles,
+          selectedTab:explorer?.path
         })
       );
     });

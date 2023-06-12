@@ -18,6 +18,7 @@ export class EditorProvider extends React.Component {
       explorer: null,
       loading:false,
       selectedFiles:[],
+      selectedTab:null
     };
   }
 
@@ -35,6 +36,19 @@ export class EditorProvider extends React.Component {
     };
 
     loadThemeCode();
+  }
+
+  componentDidUpdate(prevProps,prevState){
+    if(prevState.selectedTab !== this.state.selectedTab){
+      const selectedFiles = this.state.selectedFiles.map((file) => {
+        if(file.path === prevState.selectedTab){
+          return {...file,content:prevState.content}
+        }
+        return file
+      })
+
+      this.setState({selectedFiles})
+    }
   }
 
   onChangeState = (data) => {
@@ -111,7 +125,7 @@ export class EditorProvider extends React.Component {
 
           const tempContent = (explorer.name !== this.state.explorer.name) ? this.state.content : tempSelectedFiles.length ? tempSelectedFiles[0]?.content : null;  
 
-          this.setState({ code: response.data, explorer: tempExplorer,selectedFiles:tempSelectedFiles,content: tempContent });
+          this.setState({ code: response.data, explorer: tempExplorer,selectedFiles:tempSelectedFiles,content: tempContent,selectedTab:tempExplorer?.path });
         });
       } else if (
         /* Read more about handling dismissals below */
