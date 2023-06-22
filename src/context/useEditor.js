@@ -3,51 +3,63 @@ import { toast } from "react-hot-toast";
 import axiosInstance from "../api/base";
 import Spinner from "../component/Spinner";
 import Swal from "../config/Swal";
+import withRouter from "../config/WithRouter";
 
 export const EditorContext = createContext();
 
-export class EditorProvider extends React.Component {
+class EditorProvider extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       code: {},
       content: null,
       isCreateNewFileModelOpen: false,
       isCreateNewFolderModelOpen: false,
       explorer: null,
-      loading:false,
-      selectedFiles:[],
-      selectedTab:null
+      loading: false,
+      selectedFiles: [],
+      selectedTab: null,
+      error: null,
     };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     const loadThemeCode = async () => {
-      
-      this.setState({loading:true})
+      this.setState({ loading: true });
 
       await axiosInstance
-        .get("/theme/code")
-        .then((response) => {
-          this.setState({ code: response.data,loading:false })
+        .get("/theme/code", {
+          params: {
+            id: this.props.searchParams.get("id"),
+          },
         })
-        .catch((error) => console.log(" Error ", error));
+        .then((response) => {
+          this.setState({ code: response.data, loading: false });
+        })
+        .catch((error) => {
+          Promise.resolve(this.setState({ loading: false })).then(() =>
+            this.setState({
+              error: "Something went wrong \n Please try after sometimes later",
+            })
+          );
+        });
     };
 
-    loadThemeCode();
+    if (this.props.searchParams.get("id")) {
+      loadThemeCode();
+    }
   }
 
-  componentDidUpdate(prevProps,prevState){
-    if(prevState.selectedTab !== this.state.selectedTab){
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.selectedTab !== this.state.selectedTab) {
       const selectedFiles = this.state.selectedFiles.map((file) => {
-        if(file.path === prevState.selectedTab){
-          return {...file,content:prevState.content}
+        if (file.path === prevState.selectedTab) {
+          return { ...file, content: prevState.content };
         }
-        return file
-      })
+        return file;
+      });
 
-      this.setState({selectedFiles})
+      this.setState({ selectedFiles });
     }
   }
 
@@ -68,16 +80,24 @@ export class EditorProvider extends React.Component {
   };
 
   onSaveFileByCTRL = async () => {
-    const onSaveFileByCTRLPromise = axiosInstance.put("/theme/file/", {
-      content:this.state.content,
-      path: this.state.explorer.path,
-    });
+    const onSaveFileByCTRLPromise = axiosInstance.put(
+      "/theme/file/",
+      {
+        content: this.state.content,
+        path: this.state.explorer.path,
+      },
+      {
+        params: {
+          id: this.props.searchParams.get("id"),
+        },
+      }
+    );
 
-    toast.promise(onSaveFileByCTRLPromise,{
-      loading:"Saving...",
-      success:"File Saved Successfully",
-      error:`Couldn't save file ${this.state.explorer?.name}`
-    })
+    toast.promise(onSaveFileByCTRLPromise, {
+      loading: "Saving...",
+      success: "File Saved Successfully",
+      error: `Couldn't save file ${this.state.explorer?.name}`,
+    });
 
     await onSaveFileByCTRLPromise.then(async (response) => {
       await axiosInstance
@@ -87,8 +107,21 @@ export class EditorProvider extends React.Component {
           },
         })
         .then(({ data }) => {
+          const { content, path } = data;
+
+          const tempSelectedFiles = this.state.selectedFiles.map((file) => {
+            if (file.path === path) {
+              return { ...file, content };
+            }
+            return file;
+          });
+
           Promise.resolve(
-            this.setState({ code: response.data, ...data })
+            this.setState({
+              code: response.data,
+              content,
+              selectedFiles: tempSelectedFiles,
+            })
           )
         });
     });
@@ -97,7 +130,7 @@ export class EditorProvider extends React.Component {
   onDeleteFile = async (explorer) => {
     Swal.fire({
       title: "Are you sure?",
-      text: `Do you want to delete ${this.state.explorer.name} file!`,
+      text: `Do you want to delete ${this.state?.explorer?.name} file!`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -107,6 +140,7 @@ export class EditorProvider extends React.Component {
       if (result.isConfirmed) {
         const onDeleteFilePromise = axiosInstance.delete("/theme/file/", {
           params: {
+            id: this.props.searchParams.get("id"),
             path: explorer.path,
           },
         });
@@ -114,18 +148,35 @@ export class EditorProvider extends React.Component {
         toast.promise(onDeleteFilePromise, {
           loading: "Deleting...",
           success: `${explorer.name} file is deleted successfully`,
-          error: `Couldn't delete file ${explorer.name}`,
+          error: `Couldn't delete file ${explorer?.name}`,
         });
 
         await onDeleteFilePromise.then((response) => {
-          const tempSelectedFiles = this.state.selectedFiles.filter((file) => file.path !== explorer.path);
+          const tempSelectedFiles = this.state.selectedFiles.filter(
+            (file) => file.path !== explorer.path
+          );
 
-          
-          const tempExplorer = (explorer.name !== this.state.explorer.name) ? explorer : tempSelectedFiles.length ? tempSelectedFiles[0] : null; 
+          const tempExplorer =
+            explorer.name !== this?.state?.explorer?.name
+              ? explorer
+              : tempSelectedFiles.length
+              ? tempSelectedFiles[0]
+              : null;
 
-          const tempContent = (explorer.name !== this.state.explorer.name) ? this.state.content : tempSelectedFiles.length ? tempSelectedFiles[0]?.content : null;  
+          const tempContent =
+            explorer?.name !== this?.state?.explorer?.name
+              ? this.state.content
+              : tempSelectedFiles.length
+              ? tempSelectedFiles[0]?.content
+              : null;
 
-          this.setState({ code: response.data, explorer: tempExplorer,selectedFiles:tempSelectedFiles,content: tempContent,selectedTab:tempExplorer?.path });
+          this.setState({
+            code: response.data,
+            explorer: tempExplorer,
+            selectedFiles: tempSelectedFiles,
+            content: tempContent,
+            selectedTab: tempExplorer?.path,
+          });
         });
       } else if (
         /* Read more about handling dismissals below */
@@ -137,6 +188,7 @@ export class EditorProvider extends React.Component {
   };
 
   render() {
+    console.log(" Selected Files ", this.state.selectedFiles);
     return (
       <EditorContext.Provider
         value={{
@@ -145,7 +197,7 @@ export class EditorProvider extends React.Component {
           toggleCreateNewFileModel: this.toggleCreateNewFileModel,
           toggleCreateNewFolderModel: this.toggleCreateNewFolderModel,
           onSaveFileByCTRL: this.onSaveFileByCTRL,
-          onDeleteFile:this.onDeleteFile
+          onDeleteFile: this.onDeleteFile,
         }}
       >
         {this.state.loading ? <Spinner /> : this.props.children}
@@ -153,3 +205,5 @@ export class EditorProvider extends React.Component {
     );
   }
 }
+
+export default withRouter(EditorProvider);

@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
-import axiosInstance from "./api/base";
+import axiosInstance from "../api/base";
 import { useNavigate } from "react-router-dom";
-import useAuthStore from "./state/useAuthStore";
+import useAuthStore from "../state/useAuthStore";
 
-const Login = () => {
-  const [data,setData] = useState({username:"auth",password:"224133"});
+const Login = (props) => {
+  const [data,setData] = useState({username:"qazi",password:"224133"});
   const navigate = useNavigate()
-  const { setUser } = useAuthStore((state) => state);
+  const { setUser, user} = useAuthStore((state) => state);
+
+  console.log(" User ",user)
 
   useEffect(()=> {
-    if(localStorage.getItem("authTokens")){
-      navigate('/editor')
+    if(user){
+      navigate('/directories')
     }
-  },[])
+  },[props])
 
   const onSubmit = async (e) => {
     e.preventDefault()
@@ -24,7 +26,7 @@ const Login = () => {
         await axiosInstance.get("/theme/user-details/")
         .then((response) => {
           Promise.resolve(setUser(response.data))
-          .then(() => navigate('/editor'))
+          .then(() => navigate('/directories'))
         })
       })
     })
