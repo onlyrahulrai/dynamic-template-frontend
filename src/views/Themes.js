@@ -20,7 +20,7 @@ const Themes = () => {
     const loadThemes = async () => {
       setLoading(true);
       await axiosInstance
-        .get("/theme")
+        .get("/editor")
         .then((response) => {
           Promise.resolve(setThemes(response.data)).then(() =>
             setLoading(false)
@@ -39,7 +39,7 @@ const Themes = () => {
   const onSelectThemeConfimed = async (theme) => {
     setRequestLoading(theme.id);
 
-    const selectThemePromise = axiosInstance.post("/theme/", {
+    const selectThemePromise = axiosInstance.post("/editor/", {
       id: theme.id,
     });
 
@@ -68,7 +68,7 @@ const Themes = () => {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Create Copy",
+      confirmButtonText: "Yes, I want",
     }).then((result) => {
       if (result.isConfirmed) {
         onSelectThemeConfimed(theme);

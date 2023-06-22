@@ -23,7 +23,7 @@ const Login = (props) => {
     .then((response) => {
       Promise.resolve(localStorage.setItem("authTokens",JSON.stringify(response.data)))
       .then(async () => {
-        await axiosInstance.get("/theme/user-details/")
+        await axiosInstance.get("/editor/user-details/")
         .then((response) => {
           Promise.resolve(setUser(response.data))
           .then(() => navigate('/directories'))

@@ -13,6 +13,7 @@ import { EditorContext } from "../context/useEditor";
 import toast from "react-hot-toast";
 import axiosInstance, { baseURL } from "../api/base";
 import Swal from "../config/Swal";
+import useAuthStore from "../state/useAuthStore";
 
 function Settings({ direction, ...args }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -20,11 +21,12 @@ function Settings({ direction, ...args }) {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const {user} = useAuthStore((state) => state)
 
   const onConfirmToPublish = async () => {
     setLoading(true);
 
-    const publishPromise = axiosInstance.post("/theme/publish/", {
+    const publishPromise = axiosInstance.post("/editor/publish/", {
       id: searchParams.get("id"),
     });
 
@@ -86,7 +88,7 @@ function Settings({ direction, ...args }) {
           </DropdownItem>
           <DropdownItem disabled={loading}>
             <Link
-              to={`${baseURL}/?path=${code?.name}`}
+              to={`${baseURL}/?path=${code?.name}&user=${user?.username}`}
               target="_blank"
               className="text-decoration-none text-dark"
             >

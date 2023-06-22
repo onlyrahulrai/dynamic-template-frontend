@@ -30,7 +30,7 @@ function CreateNewFileModel(args) {
     e.preventDefault();
 
     const onCreateFilePromise = axiosInstance.post(
-      `/theme/file/`,
+      `/editor/file/`,
       {
         file: fileName,
       },

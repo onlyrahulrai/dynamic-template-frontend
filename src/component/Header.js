@@ -32,7 +32,7 @@ function Header(args) {
         <Collapse isOpen={isOpen} navbar>
           <Nav className="me-auto" navbar>
             <NavItem className="mx-3">
-              <Link to="/directories" className="text-decoration-none text-secondary">Templates</Link>
+              <Link to="/directories" className="text-decoration-none text-secondary">Directories</Link>
             </NavItem>
             <NavItem className="mx-3">
               <Link to="/themes" className="text-decoration-none text-secondary">Themes</Link>

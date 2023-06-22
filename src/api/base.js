@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const baseURL = "https://testing-amojo.up.railway.app"
+export const baseURL = "http://127.0.0.1:8000"
 
 const getAuthTokens = () =>
   localStorage.getItem("authTokens")

@@ -15,7 +15,7 @@ const Folder = ({ explorer }) => {
 
   const onClickFile = async () => {
     await axiosInstance
-      .get("/theme/file/", { params: { path: explorer.path } })
+      .get("/editor/file/", { params: { path: explorer.path } })
       .then((response) => {
         const fileIndex = selectedFiles.findIndex((file) => file.path === explorer.path);
 
@@ -52,7 +52,7 @@ const Folder = ({ explorer }) => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const onDeleteFolderPromise = axiosInstance.delete("/theme/folder/", {
+        const onDeleteFolderPromise = axiosInstance.delete("/editor/folder/", {
           params: {
             id:searchParams.get('id'),
             path: explorer.path,
