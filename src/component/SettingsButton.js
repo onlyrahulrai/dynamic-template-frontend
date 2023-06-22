@@ -11,7 +11,7 @@ import { BsGear } from "react-icons/bs";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { EditorContext } from "../context/useEditor";
 import toast from "react-hot-toast";
-import axiosInstance from "../api/base";
+import axiosInstance, { baseURL } from "../api/base";
 import Swal from "../config/Swal";
 
 function Settings({ direction, ...args }) {
@@ -86,7 +86,7 @@ function Settings({ direction, ...args }) {
           </DropdownItem>
           <DropdownItem disabled={loading}>
             <Link
-              to={`http://127.0.0.1:8000/?path=${code?.name}`}
+              to={`${baseURL}/?path=${code?.name}`}
               target="_blank"
               className="text-decoration-none text-dark"
             >
