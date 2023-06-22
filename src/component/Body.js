@@ -42,7 +42,7 @@ const Body = () => {
     await onSaveFilePromise
       .then(async (response) => {
         await axiosInstance
-          .get("/theme/file/", {
+          .get("/editor/file/", {
             params: {
               path: explorer.path,
             },
