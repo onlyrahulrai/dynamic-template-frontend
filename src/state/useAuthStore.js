@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 const useAuthStore = create((set) => ({
-  user: {},
+  user: null,
   setUser: (user) => set((state) => ({ ...state, user })),
 }));
 

@@ -4,6 +4,8 @@ import axiosInstance from "../api/base";
 import toast from "react-hot-toast";
 import NoFileSelectedMessage from "./NoFileSelectedMessage";
 import { AiOutlineClose } from "react-icons/ai";
+import { useSearchParams } from "react-router-dom";
+import Settings from "./SettingsButton";
 
 const Body = () => {
   const {
@@ -13,15 +15,31 @@ const Body = () => {
     selectedFiles,
     selectedTab,
   } = useContext(EditorContext);
+  const [searchParams] = useSearchParams();
 
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    await axiosInstance
-      .put("/theme/file/", {
+    const onSaveFilePromise = axiosInstance.put(
+      "/theme/file/",
+      {
         content,
         path: explorer.path,
-      })
+      },
+      {
+        params: {
+          id: searchParams.get("id"),
+        },
+      }
+    );
+
+    toast.promise(onSaveFilePromise, {
+      loading: "Saving...",
+      success: "File Saved Successfully",
+      error: `Couldn't save file ${explorer?.name}`,
+    });
+
+    await onSaveFilePromise
       .then(async (response) => {
         await axiosInstance
           .get("/theme/file/", {
@@ -30,9 +48,22 @@ const Body = () => {
             },
           })
           .then(({ data }) => {
+            const { content, path } = data;
+
+            const tempSelectedFiles = selectedFiles.map((file) => {
+              if (file.path === path) {
+                return { ...file, content };
+              }
+              return file;
+            });
+
             Promise.resolve(
-              onChangeState({ code: response.data, ...data })
-            ).then(() => toast.success(" File Saved Successfully "));
+              onChangeState({
+                code: response.data,
+                content,
+                selectedFiles: tempSelectedFiles,
+              })
+            )
           });
       })
       .catch((error) => console.log(" Error ", error));
@@ -66,9 +97,8 @@ const Body = () => {
       <div className="card h-100">
         <div className="card-body">
           <div className="d-flex">
-            <div style={{ width: "12%", padding: "14px" }}>
-              <span className="mr-5">Body Container</span>{" "}
-            </div>
+            <Settings />
+
             <div style={{ width: "88%" }}>
               {content !== null ? (
                 <div className="scrollmenu">

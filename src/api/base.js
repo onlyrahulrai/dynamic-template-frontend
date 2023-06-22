@@ -1,12 +1,14 @@
 import axios from "axios";
 
+export const baseURL = "https://testing-amojo.up.railway.app"
+
 const getAuthTokens = () =>
   localStorage.getItem("authTokens")
     ? JSON.parse(localStorage.getItem("authTokens"))
     : null;
 
 const axiosInstance = axios.create({
-  baseURL: "https://testing-amojo.up.railway.app",
+  baseURL,
   timeout: 10000,
   headers: {
     Authorization: `Bearer ${getAuthTokens()?.access}`,
@@ -32,7 +34,7 @@ axiosInstance.interceptors.response.use(
 
     if (
       error.response.status === 401 &&
-      originalRequest.headers.Authorization
+      originalRequest.headers.Authorization && getAuthTokens()?.access
     ) {
       originalRequest._retry = true;
 

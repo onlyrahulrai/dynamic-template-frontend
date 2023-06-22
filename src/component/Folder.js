@@ -6,10 +6,12 @@ import { EditorContext } from "../context/useEditor";
 import { BsTrash3 } from "react-icons/bs";
 import Swal from "../config/Swal";
 import { toast } from "react-hot-toast";
+import { useSearchParams } from "react-router-dom";
 
 const Folder = ({ explorer }) => {
   const [expand, setExpand] = useState(false);
   const { onChangeState, selectedFiles,onDeleteFile } = useContext(EditorContext);
+  const [searchParams,] = useSearchParams()
 
   const onClickFile = async () => {
     await axiosInstance
@@ -52,6 +54,7 @@ const Folder = ({ explorer }) => {
       if (result.isConfirmed) {
         const onDeleteFolderPromise = axiosInstance.delete("/theme/folder/", {
           params: {
+            id:searchParams.get('id'),
             path: explorer.path,
           },
         });

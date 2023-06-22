@@ -12,9 +12,11 @@ import {
 import { EditorContext } from "../context/useEditor";
 import axiosInstance from "../api/base";
 import toast from "react-hot-toast";
+import { useSearchParams } from "react-router-dom";
 
 function CreateNewFileModel(args) {
   const [fileName, setFileName] = useState("");
+  const [searchParams,] = useSearchParams();
 
   const {
     isCreateNewFileModelOpen,
@@ -34,7 +36,8 @@ function CreateNewFileModel(args) {
       },
       {
         params: {
-          path: explorer.path,
+          id:searchParams.get('id'),
+          path: explorer.path
         },
       }
     );
