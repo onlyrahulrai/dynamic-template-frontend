@@ -12,7 +12,7 @@ function App() {
   useEffect(() => {
     const loadUserDetails = async () => {
       await axiosInstance
-        .get("/theme/user-details/")
+        .get("/editor/user-details/")
         .then((response) => setUser(response.data))
         .catch((error) => {
           navigate("/");

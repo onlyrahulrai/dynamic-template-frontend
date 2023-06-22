@@ -17,7 +17,7 @@ const Directories = () => {
     const fetchDirectories = async () => {
       setLoading(true);
       await axiosInstance
-        .get("/theme/code-directories/")
+        .get("/editor/code-directories/")
         .then((response) => {
           Promise.resolve(setDirectories(response.data)).then(() =>
             setLoading(false)
@@ -35,7 +35,7 @@ const Directories = () => {
 
   const onCreateDirectory = async (id, name) => {
     await axiosInstance
-      .post("/theme/code-directories/", {
+      .post("/editor/code-directories/", {
         id,
         name,
       })

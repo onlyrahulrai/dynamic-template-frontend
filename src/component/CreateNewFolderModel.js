@@ -28,7 +28,7 @@ function CreateNewFolderModel(args) {
     e.preventDefault();
 
     const onCreateFolderPromise = axiosInstance.post(
-      `/theme/folder/`,
+      `/editor/folder/`,
       {
         folder: folderName,
       },

@@ -21,7 +21,7 @@ const Body = () => {
     e.preventDefault();
 
     const onSaveFilePromise = axiosInstance.put(
-      "/theme/file/",
+      "/editor/file/",
       {
         content,
         path: explorer.path,

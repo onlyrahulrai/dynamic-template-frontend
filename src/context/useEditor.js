@@ -28,7 +28,7 @@ class EditorProvider extends React.Component {
       this.setState({ loading: true });
 
       await axiosInstance
-        .get("/theme/code", {
+        .get("/editor/code", {
           params: {
             id: this.props.searchParams.get("id"),
           },
@@ -81,7 +81,7 @@ class EditorProvider extends React.Component {
 
   onSaveFileByCTRL = async () => {
     const onSaveFileByCTRLPromise = axiosInstance.put(
-      "/theme/file/",
+      "/editor/file/",
       {
         content: this.state.content,
         path: this.state.explorer.path,
@@ -101,7 +101,7 @@ class EditorProvider extends React.Component {
 
     await onSaveFileByCTRLPromise.then(async (response) => {
       await axiosInstance
-        .get("/theme/file/", {
+        .get("/editor/file/", {
           params: {
             path: this.state.explorer?.path,
           },
@@ -138,7 +138,7 @@ class EditorProvider extends React.Component {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const onDeleteFilePromise = axiosInstance.delete("/theme/file/", {
+        const onDeleteFilePromise = axiosInstance.delete("/editor/file/", {
           params: {
             id: this.props.searchParams.get("id"),
             path: explorer.path,
