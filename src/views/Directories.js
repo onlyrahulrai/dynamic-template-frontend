@@ -4,14 +4,16 @@ import Spinner from "../component/Spinner";
 import Swal from "../config/Swal";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../component/Header";
-import { AiOutlineArrowRight } from "react-icons/ai";
+import { AiOutlineArrowRight,AiOutlineCopy,AiOutlineEye,AiOutlineEdit } from "react-icons/ai";
 import Error from "../component/Error";
+import useAuthStore from "../state/useAuthStore";
 
 const Directories = () => {
   const [directories, setDirectories] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const { user } = useAuthStore((state) => state);
 
   useEffect(() => {
     const fetchDirectories = async () => {
@@ -113,17 +115,36 @@ const Directories = () => {
                         {directory.public ? "Production" : "Development"}
                       </span>
                     </p>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={() =>
-                        directory.public
-                          ? onClickEditCode(directory.id)
-                          : navigate(`/editor/?id=${directory.id}`)
-                      }
-                    >
-                      Edit Theme
-                    </button>
+
+                    <div className="d-flex gap-3">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary"
+                        onClick={() => onClickEditCode(directory.id)}
+                      >
+                        <AiOutlineCopy size={24} />
+                      </button>
+
+                      {!directory.public ? (
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary"
+                          onClick={() =>
+                            navigate(`/editor/?id=${directory.id}`)
+                          }
+                        >
+                          <AiOutlineEdit size={24} />
+                        </button>
+                      ) : null}
+
+                      <Link
+                        className="btn btn-outline-success"
+                        to={`${baseURL}/?user=${user?.username}&path=${directory.name}`}
+                        target="_blank"
+                      >
+                        <AiOutlineEye size={24} />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
