@@ -51,7 +51,7 @@ const Login = (props) => {
             <br />
             <label htmlFor="password">Password:</label>
             <br />
-            <input type="text" name="password" className="form-control" value={data.password} onChange={onChange} required />
+            <input type="password" name="password" className="form-control" value={data.password} onChange={onChange} required />
 
             <button type="submit" className="btn btn-warning text-white my-4">Log In</button>
           </form>
