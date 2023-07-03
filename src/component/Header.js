@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Collapse,
   Navbar,
   NavbarToggler,
   Nav,
-  NavbarText,
   NavItem,
 } from "reactstrap";
 import useAuthStore from "../state/useAuthStore";

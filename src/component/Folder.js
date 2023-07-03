@@ -10,24 +10,31 @@ import { useSearchParams } from "react-router-dom";
 
 const Folder = ({ explorer }) => {
   const [expand, setExpand] = useState(false);
-  const { onChangeState, selectedFiles,onDeleteFile } = useContext(EditorContext);
-  const [searchParams,] = useSearchParams()
+  const { onChangeState, selectedFiles, onDeleteFile } = useContext(
+    EditorContext
+  );
+  const [searchParams] = useSearchParams();
 
   const onClickFile = async () => {
     await axiosInstance
       .get("/editor/file/", { params: { path: explorer.path } })
       .then((response) => {
-        const fileIndex = selectedFiles.findIndex((file) => file.path === explorer.path);
+        const fileIndex = selectedFiles.findIndex(
+          (file) => file.path === explorer.path
+        );
 
         const values =
           (fileIndex === -1)
-            ? {selectedFiles:[...selectedFiles, response?.data],content:response?.data?.content}
-            : {selectedFiles,content:selectedFiles[fileIndex]?.content};
+            ? {
+                selectedFiles: [...selectedFiles, {...response?.data,saved:true}],
+                content: response?.data?.content,
+              }
+            : { selectedFiles, content: selectedFiles[fileIndex]?.content };
 
         onChangeState({
-          explorer,
-          selectedTab:response?.data?.path,
-          ...values
+          explorer:{...explorer,saved:true},
+          selectedTab: response?.data?.path,
+          ...values,
         });
       })
       .catch((error) => console.log(" Error ", error));
@@ -54,7 +61,7 @@ const Folder = ({ explorer }) => {
       if (result.isConfirmed) {
         const onDeleteFolderPromise = axiosInstance.delete("/editor/folder/", {
           params: {
-            id:searchParams.get('id'),
+            id: searchParams.get("id"),
             path: explorer.path,
           },
         });
@@ -67,13 +74,23 @@ const Folder = ({ explorer }) => {
 
         await onDeleteFolderPromise
           .then((response) => {
-            const foldersAfterDelete = selectedFiles.filter((file) => !explorer.items.map((file) => file.path).includes(file.path))
-            
-            const tempExplorer = foldersAfterDelete.length ? foldersAfterDelete[0] : null;
+            const foldersAfterDelete = selectedFiles.filter(
+              (file) =>
+                !explorer.items.map((file) => file.path).includes(file.path)
+            );
+
+            const tempExplorer = foldersAfterDelete.length
+              ? foldersAfterDelete[0]
+              : null;
 
             const content = tempExplorer ? tempExplorer?.content : null;
 
-            onChangeState({ code: response.data,  explorer, content,selectedFiles:foldersAfterDelete });
+            onChangeState({
+              code: response.data,
+              explorer,
+              content,
+              selectedFiles: foldersAfterDelete,
+            });
           })
           .catch((error) => console.log(" Error ", error));
       } else if (
