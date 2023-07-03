@@ -50,14 +50,14 @@ function CreateNewFileModel(args) {
 
     await onCreateFilePromise.then((response) => {
       const code = response.data.code;
-      const explorer = response.data.explorer;
+      const explorer = {...response.data.explorer,saved:true};
       const _selectedFiles = [...selectedFiles,explorer]
 
       Promise.resolve(
         onChangeState({
+          explorer,
           code: code,
           isCreateNewFileModelOpen: false,
-          explorer:explorer,
           content:explorer?.content,
           selectedFiles:_selectedFiles,
           selectedTab:explorer?.path

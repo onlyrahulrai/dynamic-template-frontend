@@ -54,7 +54,7 @@ class EditorProvider extends React.Component {
     if (prevState.selectedTab !== this.state.selectedTab) {
       const selectedFiles = this.state.selectedFiles.map((file) => {
         if (file.path === prevState.selectedTab) {
-          return { ...file, content: prevState.content };
+          return { ...file, content: prevState.content,saved:prevState?.explorer?.saved };
         }
         return file;
       });
@@ -111,7 +111,7 @@ class EditorProvider extends React.Component {
 
           const tempSelectedFiles = this.state.selectedFiles.map((file) => {
             if (file.path === path) {
-              return { ...file, content };
+              return { ...file, content,saved:true };
             }
             return file;
           });
@@ -121,6 +121,7 @@ class EditorProvider extends React.Component {
               code: response.data,
               content,
               selectedFiles: tempSelectedFiles,
+              explorer:{...this.state.explorer,saved:true}
             })
           )
         });
@@ -188,7 +189,6 @@ class EditorProvider extends React.Component {
   };
 
   render() {
-    console.log(" Selected Files ", this.state.selectedFiles);
     return (
       <EditorContext.Provider
         value={{

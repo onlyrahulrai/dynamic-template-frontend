@@ -6,6 +6,7 @@ import NoFileSelectedMessage from "./NoFileSelectedMessage";
 import { AiOutlineClose } from "react-icons/ai";
 import { useSearchParams } from "react-router-dom";
 import Settings from "./SettingsButton";
+import Swal from "../config/Swal";
 
 const Body = () => {
   const {
@@ -14,6 +15,7 @@ const Body = () => {
     explorer,
     selectedFiles,
     selectedTab,
+    onSaveFileByCTRL,
   } = useContext(EditorContext);
   const [searchParams] = useSearchParams();
 
@@ -52,7 +54,7 @@ const Body = () => {
 
             const tempSelectedFiles = selectedFiles.map((file) => {
               if (file.path === path) {
-                return { ...file, content };
+                return { ...file, content, saved: true };
               }
               return file;
             });
@@ -62,8 +64,9 @@ const Body = () => {
                 code: response.data,
                 content,
                 selectedFiles: tempSelectedFiles,
+                explorer:{...explorer,saved:true}
               })
-            )
+            );
           });
       })
       .catch((error) => console.log(" Error ", error));
@@ -77,19 +80,58 @@ const Body = () => {
     });
   };
 
-  const onDeselectTab = (explorer) => {
-    const files = selectedFiles.filter((file) => file.path !== explorer.path);
+  const onCloseFile = (tab) => {
+    const files = selectedFiles.filter((file) => file.path !== tab.path);
 
-    const currentExplorer = files.length ? files[files.length - 1] : null;
+    const object = {};
 
-    const content = currentExplorer ? currentExplorer?.content : null;
+    if (files.findIndex((file) => file.path === explorer?.path) !== -1) {
+      object["selectedFiles"] = files;
+    } else {
+      const explorerIndex = files.length ? files.length : null;
 
-    onChangeState({
-      selectedFiles: files,
-      content,
-      selectedTab: currentExplorer?.path,
-      explorer: currentExplorer,
-    });
+      object["selectedFiles"] = explorerIndex ? files : [];
+
+      object["explorer"] = explorerIndex ? files[explorerIndex - 1] : null;
+
+      object["selectedTab"] = explorerIndex ? files[explorerIndex - 1]?.path : null;
+
+      object["content"] = explorerIndex ? files[explorerIndex - 1]?.content : null;
+    }
+
+    onChangeState(object);
+  };
+
+  const onDeselectTab = (tab) => {
+    if (
+      tab?.path === explorer?.path
+        ? explorer?.saved
+        : selectedFiles.findIndex(
+            (file) => file.path === tab.path && !file.saved
+          ) === -1
+    ) {
+      onCloseFile(tab);
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: `Do you want to \n save  the changes you made to ${tab?.name}?`,
+        text: "your changes will be lost if you don't save them.",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Save",
+        denyButtonText: `Don't save`,
+        customClass: {
+          title: "fs-4 lh-sm",
+        },
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          onSaveFileByCTRL();
+        } else if (result.isDenied) {
+          onCloseFile(tab);
+        }
+      });
+    }
   };
 
   return (
@@ -133,7 +175,12 @@ const Body = () => {
             <form onSubmit={onSubmit}>
               <textarea
                 value={content || ""}
-                onChange={(e) => onChangeState({ content: e.target.value })}
+                onChange={(e) =>
+                  onChangeState({
+                    content: e.target.value,
+                    explorer: { ...explorer, saved: false },
+                  })
+                }
                 style={{ width: "100%" }}
                 rows={27}
               />
